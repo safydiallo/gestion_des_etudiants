@@ -1,0 +1,130 @@
+# Projet Application Microservices
+
+## 📌 Description
+
+Ce projet consiste à développer une **application basée sur une architecture microservices**, conçue pour être **collaborative**, **scalable** et **facile à maintenir**.
+
+L’architecture repose sur des services indépendants communiquant entre eux, avec une gestion centralisée de la configuration, de la découverte des services et du routage des requêtes.
+
+---
+
+## 🧩 Architecture du projet
+
+Le projet est structuré autour des microservices suivants :
+
+* **ms-config** : Serveur de configuration centralisé
+* **ms-discovery** : Serveur de découverte des services (Service Registry)
+* **ms-gateway** : API Gateway (point d’entrée unique)
+* **Autres microservices métiers** (ex: ms-user, ms-etudiant, ms-classe, ms-note, ms-enseignant.)
+
+📐 **Schéma simplifié :**
+
+Client → ms-gateway → Microservices → Base de données
+       ↘ ms-discovery
+       ↘ ms-config
+
+---
+
+## 🐳 Pourquoi Docker ?
+
+Docker est utilisé pour :
+
+* Faciliter le **travail collaboratif**
+* Garantir un **environnement identique** pour tous les développeurs
+* Simplifier le **déploiement** des microservices
+* Isoler chaque service dans un **conteneur indépendant**
+
+Chaque microservice dispose de son propre **Dockerfile**, et l’ensemble est orchestré via **Docker Compose**.
+
+---
+
+## ⚙️ Technologies utilisées
+
+* **Java 17**
+* **Spring Boot**
+* **Spring Cloud**
+
+  * Config Server
+  * Eureka Discovery
+  * Gateway
+* **Docker & Docker Compose**
+* **Maven**
+* **Git & GitHub**
+
+---
+
+## 📂 Structure du projet
+
+```bash
+project-root/
+│
+├── ms-config/
+├── ms-discovery/
+├── ms-gateway/
+├── ms-user/           # Exemple de microservice métier
+├── docker-compose.yml
+├── README.md
+└── .gitignore
+```
+
+---
+
+## ▶️ Lancement du projet
+
+### 1️⃣ Cloner le projet
+
+```bash
+git clone https://github.com/votre-organisation/nom-du-projet.git
+cd nom-du-projet
+```
+
+### 2️⃣ Lancer les conteneurs Docker
+
+```bash
+docker-compose up --build
+```
+
+### 3️⃣ Accès aux services
+
+* **Config Server** : [http://localhost:8888](http://localhost:8888)
+* **Discovery (Eureka)** : [http://localhost:8761](http://localhost:8761)
+* **API Gateway** : [http://localhost:8080](http://localhost:8080)
+
+---
+
+## 👥 Travail collaboratif
+
+* Chaque développeur travaille sur une **branche Git dédiée**
+* Les modifications sont intégrées via des **pull requests**
+* Docker garantit la cohérence des environnements de développement
+
+---
+
+## 🔐 Bonnes pratiques
+
+* Un microservice = une responsabilité
+* Configuration externalisée (ms-config)
+* Communication via l’API Gateway
+* Découverte dynamique des services avec Eureka
+
+---
+
+## 📈 Évolutions possibles
+
+* Sécurité avec **Spring Security + JWT**
+* Observabilité (Zipkin, Prometheus, Grafana)
+* CI/CD avec GitHub Actions
+* Kubernetes pour l’orchestration
+
+---
+
+## ✍️ Auteurs
+
+* Projet réalisé dans un cadre **académique / professionnel**
+* Équipe : *à compléter*
+
+---
+
+## 📄 Licence
+
+Ce projet est à but pédagogique.
