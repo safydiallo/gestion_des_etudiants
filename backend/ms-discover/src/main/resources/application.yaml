@@ -1,0 +1,18 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: ms-discover
+  config:
+    import: "configserver:http://ms-config:8888"  # Charge la config depuis le Config Server
+
+eureka:
+  client:
+    register-with-eureka: false 
+    fetch-registry: false       
+
+logging:
+  level:
+    "[com.netflix.eureka]": INFO
+    "[com.netflix.discovery]": INFO
