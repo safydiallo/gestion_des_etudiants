@@ -1,10 +1,10 @@
-package uasz.etudiant.ms_gateway;
+package uasz.etudiant.ms_etudiant;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsGatewayApplicationTests {
+class MsEtudiantApplicationTests {
 
 	@Test
 	void contextLoads() {

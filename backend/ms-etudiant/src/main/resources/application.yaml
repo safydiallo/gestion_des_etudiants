@@ -1,0 +1,8 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ms-etudiant
+  config:
+    import: "configserver:http://ms-config:8888"
