@@ -1,0 +1,8 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: ms-enseignant
+  config:
+    import: "configserver:http://ms-config:8888"

@@ -1,0 +1,8 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: ms-note
+  config:
+    import: "configserver:http://ms-config:8888"

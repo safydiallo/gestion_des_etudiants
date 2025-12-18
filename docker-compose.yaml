@@ -61,13 +61,324 @@ services:
 
   #Les microservices des APIs métiers
 
+
+  # MS-USER API
+  ms-user:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: backend/ms-user/Dockerfile
+    container_name: ms-user
+    ports:
+      - "8081:8081"
+    depends_on:
+      ms-config:
+        condition: service_healthy
+      ms-discover:
+        condition: service_healthy
+      ms-user-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # MS-ETUDIANT API
+  ms-etudiant:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: backend/ms-etudiant/Dockerfile
+    container_name: ms-etudiant
+    ports:
+      - "8082:8082"
+    depends_on:
+      ms-config:
+        condition: service_healthy
+      ms-discover:
+        condition: service_healthy
+      ms-etudiant-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+ # MS-CLASSE API
+  ms-classe:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: backend/ms-classe/Dockerfile
+    container_name: ms-classe
+    ports:
+      - "8083:8083"
+    depends_on:
+      ms-config:
+        condition: service_healthy
+      ms-discover:
+        condition: service_healthy
+      ms-classe-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # MS-ENSEIGNANT API
+  ms-enseignant:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: backend/ms-enseignant/Dockerfile
+    container_name: ms-enseignant
+    ports:
+      - "8084:8084"
+    depends_on:
+      ms-config:
+        condition: service_healthy
+      ms-discover:
+        condition: service_healthy
+      ms-enseignant-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # MS-NOTE API
+  ms-note:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: backend/ms-note/Dockerfile
+    container_name: ms-note
+    ports:
+      - "8085:8085"
+    depends_on:
+      ms-config:
+        condition: service_healthy
+      ms-discover:
+        condition: service_healthy
+      ms-note-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
   
 
   #Les bases de données des microservices
 
-  
+
+  # MS-USER Database
+  ms-user-db:
+    <<: *service-defaults
+    image: mariadb:11
+    container_name: ms-user-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_user
+      MYSQL_USER: user
+      MYSQL_PASSWORD: passer123
+    ports:
+      - "3308:3306"
+    volumes:
+      - ms-user-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 30s
+      retries: 20
+      start_period: 60s
+    command: 
+      - --wait-timeout=28800
+      - --interactive-timeout=28800
+
+  # MS-ETUDIANT Database
+  ms-etudiant-db:
+    <<: *service-defaults
+    image: mariadb:11
+    container_name: ms-etudiant-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_etudiant
+      MYSQL_USER: etudiant_user
+      MYSQL_PASSWORD: passer123
+    ports:
+      - "3309:3306"
+    volumes:
+      - ms-etudiant-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 30s
+      retries: 20
+      start_period: 60s
+    command: 
+      - --wait-timeout=28800
+      - --interactive-timeout=28800
+
+  # MS-CLASSE Database
+  ms-classe-db:
+    <<: *service-defaults
+    image: mariadb:11
+    container_name: ms-classe-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_classe
+      MYSQL_USER: etudiant_user
+      MYSQL_PASSWORD: passer123
+    ports:
+      - "3310:3306"
+    volumes:
+      - ms-classe-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 30s
+      retries: 20
+      start_period: 60s
+    command: 
+      - --wait-timeout=28800
+      - --interactive-timeout=28800
+
+  # MS-ENSEIGNANT Database
+  ms-enseignant-db:
+    <<: *service-defaults
+    image: mariadb:11
+    container_name: ms-enseignant-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_enseignant
+      MYSQL_USER: enseignant_user
+      MYSQL_PASSWORD: passer123
+    ports:
+      - "3311:3306"
+    volumes:
+      - ms-enseignant-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 30s
+      retries: 20
+      start_period: 60s
+    command: 
+      - --wait-timeout=28800
+      - --interactive-timeout=28800
+
+  # MS-NOTE Database
+  ms-note-db:
+    <<: *service-defaults
+    image: mariadb:11
+    container_name: ms-note-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_note
+      MYSQL_USER: note_user
+      MYSQL_PASSWORD: passer123
+    ports:
+      - "3312:3306"
+    volumes:
+      - ms-note-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 30s
+      retries: 20
+      start_period: 60s
+    command: 
+      - --wait-timeout=28800
+      - --interactive-timeout=28800
+
  
   # phpMyAdmin for microservices databases
+
+   # phpMyAdmin for MS-USER
+  phpmyadmin-user:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-user
+    environment:
+      PMA_HOST: ms-user-db
+      PMA_PORT: 3306
+    ports:
+      - "9091:80"
+    networks:
+      - microservices-net
+    depends_on:
+      - ms-user-db
+    restart: unless-stopped
+
+   # phpMyAdmin for MS-ETUDIANT
+  phpmyadmin-etudiant:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-etudiant
+    environment:
+      PMA_HOST: ms-etudiant-db
+      PMA_PORT: 3306
+    ports:
+      - "9092:80"
+    networks:
+      - microservices-net
+    depends_on:
+      - ms-etudiant-db
+    restart: unless-stopped
+
+# phpMyAdmin for MS-CLASSE
+  phpmyadmin-classe:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-classe
+    environment:
+      PMA_HOST: ms-classe-db
+      PMA_PORT: 3306
+    ports:
+      - "9093:80"
+    networks:
+      - microservices-net
+    depends_on:
+      - ms-classe-db
+    restart: unless-stopped
+
+# phpMyAdmin for MS-ENSEIGNANT
+  phpmyadmin-enseignant:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-enseignant
+    environment:
+      PMA_HOST: ms-enseignant-db
+      PMA_PORT: 3306
+    ports:
+      - "9094:80"
+    networks:
+      - microservices-net
+    depends_on:
+      - ms-enseignant-db
+    restart: unless-stopped
+
+# phpMyAdmin for MS-NOTE
+  phpmyadmin-note:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-note
+    environment:
+      PMA_HOST: ms-note-db
+      PMA_PORT: 3306
+    ports:
+      - "9095:80"
+    networks:
+      - microservices-net
+    depends_on:
+      - ms-note-db
+    restart: unless-stopped
 
  
 
@@ -76,5 +387,11 @@ networks:
   microservices-net:
     driver: bridge
 
+
 #Les volumes pour les bases de données
-  
+volumes:
+  ms-user-db-data:
+  ms-etudiant-db-data:
+  ms-classe-db-data:  
+  ms-enseignant-db-data:
+  ms-note-db-data:
