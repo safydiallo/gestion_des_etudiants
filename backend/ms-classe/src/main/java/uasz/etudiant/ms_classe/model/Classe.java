@@ -17,7 +17,7 @@ public class Classe {
     private Long id;
     
     @NotBlank(message = "Le libelle est obligatoire")
-    private String libelle; // ex: L2 Info, M1 GL
+    private String nom; // ex: L2 Info, M1 GL
 
     @NotBlank(message = "Le niveau est obligatoire")
     private String niveau; // ex: L1, L2, M1, M2

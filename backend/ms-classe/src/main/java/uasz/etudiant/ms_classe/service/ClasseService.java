@@ -46,7 +46,7 @@ public class ClasseService {
     //Modifier une classe
     public Classe updateClasse(Long id, Classe updatedClasse) {
         Classe existingClasse = getClasseById(id);
-        existingClasse.setLibelle(updatedClasse.getLibelle());
+        existingClasse.setNom(updatedClasse.getNom());
         existingClasse.setNiveau(updatedClasse.getNiveau());
         existingClasse.setAnnee(updatedClasse.getAnnee());
         return repository.save(existingClasse);

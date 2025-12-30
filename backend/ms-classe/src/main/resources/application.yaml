@@ -4,5 +4,6 @@ server:
 spring:
   application:
     name: ms-classe
+     
   config:
     import: "configserver:http://ms-config:8888"
