@@ -8,9 +8,9 @@
 		<version>3.3.4</version>
 	</parent>
 	<groupId>uasz.etudiant</groupId>
-	<artifactId>ms-classe</artifactId>
+	<artifactId>ms-etudiant</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ms-classe</name>
+	<name>ms-etudiant</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

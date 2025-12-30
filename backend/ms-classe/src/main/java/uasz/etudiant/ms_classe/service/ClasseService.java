@@ -1,6 +1,5 @@
 package uasz.etudiant.ms_classe.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -15,11 +14,10 @@ import uasz.etudiant.ms_classe.repository.ClasseRepository;
 public class ClasseService {
 
     private final ClasseRepository repository;
-
-
     private final EtudiantClient etudiantClient;
+    
 
-    public ClasseService(ClasseRepository repository, EtudiantClient etudiantClient) {
+    public ClasseService(ClasseRepository repository , EtudiantClient etudiantClient) {
         this.repository = repository;
         this.etudiantClient = etudiantClient;
     }
@@ -39,35 +37,25 @@ public class ClasseService {
         return repository.findByNom(name);
     }
 
-    //Modifier une classe
-    public Classe updateClasse(Long id, Classe updatedClasse) {
-        Classe existingClasse = getClasse(id);
-        existingClasse.setLibelle(updatedClasse.getLibelle());
-        return repository.save(existingClasse);
-    }
-
-    //Afficher les etudiants d'une classe   
-    public List<EtudiantDTO> getEtudiantsDeClasse(Long classeId) {
-        Classe classe = getClasse(classeId);
-        List<EtudiantDTO> etudiants = new ArrayList<>();
-        for (Long etudiantId : classe.getEtudiantIds()) {
-            // Utiliser le client Feign pour récupérer les détails de l'étudiant
-            EtudiantDTO etudiant = etudiantClient.getEtudiant(etudiantId);
-            etudiants.add(etudiant);
-        }
-        return etudiants;
-    }
-
-    // Récupérer une classe
-    public Classe getClasse(Long id) {
+    // Réchercher une classe
+    public Classe getClasseById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ClasseNotFoundException(id));
     }
 
-    // Affecter un étudiant à une classe
-    public Classe ajouterEtudiant(Long classeId, Long etudiantId) {
-        Classe classe = getClasse(classeId);
-        classe.getEtudiantIds().add(etudiantId);
-        return repository.save(classe);
+    //Modifier une classe
+    public Classe updateClasse(Long id, Classe updatedClasse) {
+        Classe existingClasse = getClasseById(id);
+        existingClasse.setLibelle(updatedClasse.getLibelle());
+        existingClasse.setNiveau(updatedClasse.getNiveau());
+        existingClasse.setAnnee(updatedClasse.getAnnee());
+        return repository.save(existingClasse);
     }
+
+    public List<EtudiantDTO> getEtudiants(Long classeId) {
+        // appel vers etudiant-service (Feign ou RestTemplate)
+        return etudiantClient.getEtudiantsParClasse(classeId);
+    }
+    
+
 }

@@ -32,9 +32,9 @@ public class EtudiantController {
     }
 
     // GET api/etudiants/{id}
-    @GetMapping("/{id}")
-    public Etudiant get(@PathVariable Long id) {
-        return service.getEtudiant(id);
+    @GetMapping("/id/{id}")
+    public Etudiant getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
     //GET /etudiants
@@ -44,20 +44,20 @@ public class EtudiantController {
     }
 
     // GET /etudiants/matricule/{matricule}
-    @GetMapping("/{matricule}")
+    @GetMapping("/matricule/{matricule}")
     public Etudiant getByMatricule(@PathVariable String matricule) {
         return service.getByMatricule(matricule);
     }
 
     // GET /etudiants?classe=6A
     @GetMapping
-    public List<Etudiant> getByClasse(@RequestParam(required = false) String classe) {
-        return service.getByClasse(classe);
+    public List<Etudiant> getByClasse(@RequestParam Long classeId) {
+        return service.getByClasse(classeId);
     }
 
     // PUT api/etudiants/{id}
     @PutMapping("/{id}")
-    public Etudiant modifier(@PathVariable Long id, @RequestBody Etudiant etudiant) {
+    public Etudiant modifierEtudiant(@PathVariable Long id, @RequestBody Etudiant etudiant) {
         return service.modifierEtudiant(id, etudiant);
     }
 

@@ -3,6 +3,6 @@ server:
 
 spring:
   application:
-    name: ms-user
+    name: service-user
   config:
     import: "configserver:http://ms-config:8888"

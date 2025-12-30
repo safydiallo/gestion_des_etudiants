@@ -63,12 +63,12 @@ services:
 
 
   # MS-USER API
-  ms-user:
+  service-user:
     <<: *service-defaults
     build:
       context: .
-      dockerfile: backend/ms-user/Dockerfile
-    container_name: ms-user
+      dockerfile: backend/service-user/Dockerfile
+    container_name: service-user
     ports:
       - "8081:8081"
     depends_on:
@@ -76,7 +76,7 @@ services:
         condition: service_healthy
       ms-discover:
         condition: service_healthy
-      ms-user-db:
+      service-user-db:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
@@ -183,10 +183,10 @@ services:
 
 
   # MS-USER Database
-  ms-user-db:
+  service-user-db:
     <<: *service-defaults
     image: mariadb:11
-    container_name: ms-user-db
+    container_name: service-user-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: db_user
@@ -195,7 +195,7 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - ms-user-db-data:/var/lib/mysql
+      - service-user-db-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
@@ -238,7 +238,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: db_classe
-      MYSQL_USER: etudiant_user
+      MYSQL_USER: classe_user
       MYSQL_PASSWORD: passer123
     ports:
       - "3310:3306"
@@ -305,19 +305,19 @@ services:
  
   # phpMyAdmin for microservices databases
 
-   # phpMyAdmin for MS-USER
+   # phpMyAdmin for service-USER
   phpmyadmin-user:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin-user
     environment:
-      PMA_HOST: ms-user-db
+      PMA_HOST: service-user-db
       PMA_PORT: 3306
     ports:
       - "9091:80"
     networks:
       - microservices-net
     depends_on:
-      - ms-user-db
+      - service-user-db
     restart: unless-stopped
 
    # phpMyAdmin for MS-ETUDIANT
@@ -390,8 +390,8 @@ networks:
 
 #Les volumes pour les bases de données
 volumes:
-  ms-user-db-data:
+  service-user-db-data:
   ms-etudiant-db-data:
-  ms-classe-db-data:  
+  ms-classe-db-data:
   ms-enseignant-db-data:
   ms-note-db-data:

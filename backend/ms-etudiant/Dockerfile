@@ -1,4 +1,4 @@
-# backend/ms-cv/Dockerfile
+# backend/ms-etudiant/Dockerfile
 
 # Stage 1: Build
 FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
@@ -9,7 +9,7 @@ WORKDIR /app/backend/ms-etudiant
 
 # Optimisation du cache des dépendances pour ms-etudiant
 COPY backend/ms-etudiant/pom.xml .
-#RUN mvn dependency:go-offline -B
+
 
 # Copie des sources et build
 COPY backend/ms-etudiant/src ./src

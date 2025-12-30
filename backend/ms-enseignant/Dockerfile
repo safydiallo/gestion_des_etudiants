@@ -9,7 +9,7 @@ WORKDIR /app/backend/ms-enseignant
 
 # Optimisation du cache des dépendances pour ms-enseignant
 COPY backend/ms-enseignant/pom.xml .
-#RUN mvn dependency:go-offline -B
+
 
 # Copie des sources et build
 COPY backend/ms-enseignant/src ./src

@@ -1,4 +1,4 @@
-package uasz.etudiant.ms_user;
+package uasz.etudiant.service_user;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

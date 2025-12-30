@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Optimisation du cache des dépendances
 COPY pom.xml .
-#RUN mvn dependency:go-offline -B
+
 
 # Copie des sources et build
 COPY src ./src

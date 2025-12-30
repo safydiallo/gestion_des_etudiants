@@ -51,7 +51,7 @@ public class EtudiantService {
     }
 
     // Rechercher par ID
-    public Etudiant getEtudiant(Long id) {
+    public Etudiant getById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EtudiantNotFoundException(id));
     }
@@ -62,8 +62,8 @@ public class EtudiantService {
     }
 
     // Rechercher par classe
-    public List<Etudiant> getByClasse(String classe) {
-        return repository.findByClasse(classe);
+    public List<Etudiant> getByClasse(Long classeId) {
+        return repository.findByClasseId(classeId);
     }
     
 }

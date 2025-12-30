@@ -1,10 +1,10 @@
-package uasz.etudiant.ms_user;
+package uasz.etudiant.service_user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsUserApplicationTests {
+class ServiceUserApplicationTests {
 
 	@Test
 	void contextLoads() {

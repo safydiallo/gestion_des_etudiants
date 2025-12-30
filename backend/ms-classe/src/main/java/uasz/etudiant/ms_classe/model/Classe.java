@@ -19,6 +19,10 @@ public class Classe {
     @NotBlank(message = "Le libelle est obligatoire")
     private String libelle; // ex: L2 Info, M1 GL
 
-    @ElementCollection
-    private List<Long> etudiantIds; // IDs venant du ms-etudiant
+    @NotBlank(message = "Le niveau est obligatoire")
+    private String niveau; // ex: L1, L2, M1, M2
+
+    @NotBlank(message = "L'année est obligatoire")
+    private String annee; // ex: 2023, 2024
+
 }

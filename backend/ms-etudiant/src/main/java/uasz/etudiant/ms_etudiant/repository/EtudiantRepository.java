@@ -9,5 +9,5 @@ import uasz.etudiant.ms_etudiant.model.Etudiant;
 
 public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     Optional<Etudiant> findByMatricule(String matricule);
-    List<Etudiant> findByClasse(String classe); 
+    List<Etudiant> findByClasseId(Long classeId); 
 }

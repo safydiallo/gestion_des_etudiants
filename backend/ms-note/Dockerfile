@@ -9,7 +9,6 @@ WORKDIR /app/backend/ms-note
 
 # Optimisation du cache des dépendances pour ms-note
 COPY backend/ms-note/pom.xml .
-#RUN mvn dependency:go-offline -B
 
 # Copie des sources et build
 COPY backend/ms-note/src ./src

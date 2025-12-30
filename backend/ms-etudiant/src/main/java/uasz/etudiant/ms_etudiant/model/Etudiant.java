@@ -50,4 +50,6 @@ public class Etudiant {
         message = "Le sexe doit être 'M' ou 'F'"
     )
     private String sexe;
+
+    private Long classeId; // référence vers service-classe
 }

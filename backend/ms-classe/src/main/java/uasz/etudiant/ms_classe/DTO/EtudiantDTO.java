@@ -8,10 +8,6 @@ public class EtudiantDTO {
     private String nom;
     private String prenom;
     private String matricule;
-    private String email;
-    private String telephone;
-    private String adresse;
-    private String dateNaissance;
-    private String sexe;
+    
 }
 
