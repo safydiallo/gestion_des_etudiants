@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Data
 @NoArgsConstructor
@@ -16,7 +14,7 @@ public class Classe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank(message = "Le libelle est obligatoire")
+    @NotBlank(message = "Le nom est obligatoire")
     private String nom; // ex: L2 Info, M1 GL
 
     @NotBlank(message = "Le niveau est obligatoire")

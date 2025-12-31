@@ -181,7 +181,6 @@ services:
 
   #Les bases de données des microservices
 
-
   # MS-USER Database
   service-user-db:
     <<: *service-defaults
