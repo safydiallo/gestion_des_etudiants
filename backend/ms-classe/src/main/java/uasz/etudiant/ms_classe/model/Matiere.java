@@ -1,10 +1,9 @@
 package uasz.etudiant.ms_classe.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,10 +17,11 @@ public class Matiere {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank(message = "Le nom est obligatoire")
     private String nom;
 
-    @NotBlank(message = "Le coefficient est obligatoire")
-    private int coefficient;
+    @NotNull(message = "Le coefficient est obligatoire")
+    @Min(value = 1, message = "Le coefficient doit être >= 1")
+    private Integer coefficient;
 }
-
