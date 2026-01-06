@@ -1,35 +1,52 @@
 package uasz.etudiant.ms_note.service;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uasz.etudiant.ms_note.client.EtudiantClient;
+import uasz.etudiant.ms_note.client.MatiereClient;
 import uasz.etudiant.ms_note.dto.BulletinDto;
-import uasz.etudiant.ms_note.dto.NoteDto;
 import uasz.etudiant.ms_note.dto.CreateNoteDto;
+import uasz.etudiant.ms_note.dto.MatiereDto;
+import uasz.etudiant.ms_note.dto.NoteDto;
 import uasz.etudiant.ms_note.entity.Note;
+import uasz.etudiant.ms_note.exception.BadRequestException;
+import uasz.etudiant.ms_note.exception.ServiceUnavailableException;
 import uasz.etudiant.ms_note.repository.NoteRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-// Classe contenant la logique métier des notes
 @Service
 @RequiredArgsConstructor
 public class NotesService {
 
-    // Accès à la base de données des notes
     private final NoteRepository noteRepository;
-
-    // Client Feign vers le service-etudiant
     private final EtudiantClient etudiantClient;
+    private final MatiereClient matiereClient;
 
-    // Création et enregistrement d’une note
     public Note create(CreateNoteDto dto) {
 
-        // Vérification que l’étudiant existe
-        etudiantClient.getStudentById(dto.getEtudiantId());
+        // 1) vérifier étudiant existe (ms-etudiant)
+        try {
+            etudiantClient.getStudentById(dto.getEtudiantId());
+        } catch (FeignException.NotFound e) {
+            throw new BadRequestException("Étudiant introuvable (id=" + dto.getEtudiantId() + ")");
+        } catch (FeignException e) {
+            throw new ServiceUnavailableException("ms-etudiant indisponible : impossible de valider l'étudiant");
+        }
 
-        // Construction de l’objet Note
+        // 2) vérifier matière existe (ms-classe)
+        try {
+            matiereClient.getMatiereById(dto.getMatiereId());
+        } catch (FeignException.NotFound e) {
+            throw new BadRequestException("Matière introuvable (id=" + dto.getMatiereId() + ")");
+        } catch (FeignException e) {
+            throw new ServiceUnavailableException("ms-classe indisponible : impossible de valider la matière");
+        }
+
+        // 3) sauvegarder la note
         Note note = Note.builder()
                 .etudiantId(dto.getEtudiantId())
                 .matiereId(dto.getMatiereId())
@@ -38,37 +55,68 @@ public class NotesService {
                 .dateSaisie(LocalDateTime.now())
                 .build();
 
-        // Sauvegarde de la note en base
         return noteRepository.save(note);
     }
 
-    // Récupération des notes d’un étudiant
     public List<Note> getNotesEtudiant(Long etudiantId) {
         return noteRepository.findByEtudiantId(etudiantId);
     }
 
-    // Génération du bulletin d’un étudiant
+    // Bulletin pondéré + fallback
     public BulletinDto getBulletin(Long etudiantId) {
 
-        // Récupération des notes
         List<Note> notes = getNotesEtudiant(etudiantId);
 
-        // Calcul de la moyenne
-        double moyenne = notes.stream()
+        List<NoteDto> noteDtos = notes.stream()
+                .map(n -> new NoteDto(n.getMatiereId(), n.getValeurNote(), n.getTypeNote()))
+                .toList();
+
+        // moyenne simple (fallback)
+        double moyenneSimple = notes.stream()
                 .mapToDouble(Note::getValeurNote)
                 .average()
                 .orElse(0.0);
 
-        // Conversion Entity -> DTO
-        List<NoteDto> noteDtos = notes.stream()
-                .map(n -> new NoteDto(
-                        n.getMatiereId(),
-                        n.getValeurNote(),
-                        n.getTypeNote()
-                ))
-                .toList();
+        if (notes.isEmpty()) {
+            return new BulletinDto(etudiantId, 0.0, noteDtos, false, true);
+        }
 
-        // Retour du bulletin
-        return new BulletinDto(etudiantId, moyenne, noteDtos);
+        // Essai moyenne pondérée
+        try {
+            List<Long> matiereIds = notes.stream()
+                    .map(Note::getMatiereId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            List<MatiereDto> matieres = matiereClient.getMatieresByIds(matiereIds);
+
+            Map<Long, Integer> coefMap = matieres.stream()
+                    .filter(m -> m != null && m.getId() != null && m.getCoefficient() != null)
+                    .collect(Collectors.toMap(MatiereDto::getId, MatiereDto::getCoefficient, (a, b) -> a));
+
+            double sumNoteCoef = 0.0;
+            int sumCoef = 0;
+
+            for (Note n : notes) {
+                Integer coef = coefMap.get(n.getMatiereId());
+                if (coef == null || coef <= 0) {
+                    // fallback moyenne simple si matières incohérentes
+                    return new BulletinDto(etudiantId, moyenneSimple, noteDtos, false, true);
+                }
+                sumNoteCoef += n.getValeurNote() * coef;
+                sumCoef += coef;
+            }
+
+            double moyennePonderee = (sumCoef == 0) ? moyenneSimple : (sumNoteCoef / sumCoef);
+
+            return new BulletinDto(etudiantId, moyennePonderee, noteDtos, true, true);
+
+        } catch (FeignException e) {
+            // ms-classe down => fallback
+            return new BulletinDto(etudiantId, moyenneSimple, noteDtos, false, false);
+        } catch (Exception e) {
+            return new BulletinDto(etudiantId, moyenneSimple, noteDtos, false, false);
+        }
     }
 }

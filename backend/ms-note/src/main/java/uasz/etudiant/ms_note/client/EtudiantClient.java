@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface EtudiantClient {
 
     // Vérifie l’existence d’un étudiant par son ID
-    @GetMapping("/students/{id}")
+    @GetMapping("/api/etudiants/id/{id}")
     Object getStudentById(@PathVariable("id") Long id);
 }

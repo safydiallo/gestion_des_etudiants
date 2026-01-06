@@ -1,5 +1,6 @@
 package uasz.etudiant.ms_note.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,6 @@ public class CreateNoteDto {
     private Double valeurNote;
 
     // Type de la note
-    @NotNull
+    @NotBlank
     private String typeNote;
 }
