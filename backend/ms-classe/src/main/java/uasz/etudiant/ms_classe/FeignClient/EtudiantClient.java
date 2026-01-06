@@ -11,7 +11,7 @@ import uasz.etudiant.ms_classe.DTO.EtudiantDTO;
 @FeignClient(name = "ms-etudiant")
 public interface EtudiantClient {
 
-    @GetMapping("/api/etudiants/{classeId}")
+    @GetMapping("/api/inscriptions/etudiants/classe/{classeId}")
     List<EtudiantDTO> getEtudiantsParClasse(@RequestParam("classeId") Long classeId);
 }
 

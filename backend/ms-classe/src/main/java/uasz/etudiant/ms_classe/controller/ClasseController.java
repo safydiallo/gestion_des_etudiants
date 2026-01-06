@@ -31,13 +31,13 @@ public class ClasseController {
     }
 
     // GET /api/classes/{id}
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public Classe get(@PathVariable Long id) {
         return service.getClasseById(id);
     }
 
     //GET /api/classes/{name}
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public Classe getByName(@PathVariable String name) {
         return service.getClassesByName(name);
     }

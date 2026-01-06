@@ -60,10 +60,10 @@ public class EtudiantService {
         return repository.findByMatricule(matricule)
                 .orElseThrow(() -> new EtudiantNotFoundException(matricule));
     }
+    
+    public List<Etudiant> getEtudiantsByIds(List<Long> ids) {
+    return repository.findAllById(ids);
+}
 
-    // Rechercher par classe
-    public List<Etudiant> getByClasse(Long classeId) {
-        return repository.findByClasseId(classeId);
-    }
     
 }

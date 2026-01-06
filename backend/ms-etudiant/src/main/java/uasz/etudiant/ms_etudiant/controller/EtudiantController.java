@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import uasz.etudiant.ms_etudiant.model.Etudiant;
@@ -49,11 +48,7 @@ public class EtudiantController {
         return service.getByMatricule(matricule);
     }
 
-    // GET /etudiants?classe=6A
-    @GetMapping
-    public List<Etudiant> getByClasse(@RequestParam Long classeId) {
-        return service.getByClasse(classeId);
-    }
+    
 
     // PUT api/etudiants/{id}
     @PutMapping("/{id}")
@@ -66,4 +61,6 @@ public class EtudiantController {
     public void supprimer(@PathVariable Long id) {
         service.supprimerEtudiant(id);
     }
+
+
 }

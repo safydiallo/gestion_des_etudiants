@@ -51,5 +51,4 @@ public class Etudiant {
     )
     private String sexe;
 
-    private Long classeId; // référence vers service-classe
 }
