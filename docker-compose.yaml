@@ -67,7 +67,7 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
-      - "8180:8080"   # 🚀 Aucun conflit, Keycloak exposé sur 8180
+      - "8080:8080"   # 🚀 Aucun conflit, Keycloak exposé sur 8080
     depends_on:
       ms-discover:
         condition: service_healthy
