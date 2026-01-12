@@ -71,6 +71,10 @@ services:
     depends_on:
       ms-discover:
         condition: service_healthy
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+    networks:
+      - microservices-net
 
 
   #Les microservices des APIs métiers
@@ -408,3 +412,4 @@ volumes:
   ms-classe-db-data:
   ms-enseignant-db-data:
   ms-note-db-data:
+  keycloak-data:

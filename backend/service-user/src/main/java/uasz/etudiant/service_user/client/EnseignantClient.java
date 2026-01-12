@@ -4,10 +4,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-@FeignClient(name = "ms-enseignant")
+@FeignClient(name = "ms-enseignant")  // Nom du service Eureka
 public interface EnseignantClient {
-
-    @PostMapping("/teachers")
-    void createEnseignant(@RequestBody Object request);
+    
+    @PostMapping("/api/enseignants")
+    void createEnseignant(@RequestBody Object payload);
 }
