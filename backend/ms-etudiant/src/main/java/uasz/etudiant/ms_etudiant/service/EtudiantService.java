@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.validation.Valid;
+import uasz.etudiant.ms_etudiant.clients.AuthServiceClient;
+import uasz.etudiant.ms_etudiant.dtos.CreateUserRequest;
+import uasz.etudiant.ms_etudiant.dtos.EtudiantDTO;
 import uasz.etudiant.ms_etudiant.exception.EtudiantNotFoundException;
 import uasz.etudiant.ms_etudiant.model.Etudiant;
 import uasz.etudiant.ms_etudiant.repository.EtudiantRepository;
@@ -12,26 +14,42 @@ import uasz.etudiant.ms_etudiant.repository.EtudiantRepository;
 @Service
 public class EtudiantService {
     private final EtudiantRepository repository;
+    private final AuthServiceClient authServiceClient;
 
-    public EtudiantService(EtudiantRepository repository) {
+    public EtudiantService(EtudiantRepository repository, AuthServiceClient authServiceClient) {
         this.repository = repository;
+        this.authServiceClient = authServiceClient;
     }
 
-    // Créer un étudiant
-    public Etudiant creerEtudiant(@Valid Etudiant etudiant) {
-        if (repository.findByMatricule(etudiant.getMatricule()).isPresent()) {
+    // Créer un étudiant (Local + Keycloak)
+    public Etudiant creerEtudiant(EtudiantDTO etudiantDTO) {
+        if (repository.findByMatricule(etudiantDTO.getMatricule()).isPresent()) {
             throw new IllegalArgumentException("Matricule déjà existant");
         }
+
+        // 1. Créer l'utilisateur dans Keycloak via service-user
+        CreateUserRequest userRequest = new CreateUserRequest();
+        userRequest.setUsername(etudiantDTO.getEmail()); // Username = Email
+        userRequest.setEmail(etudiantDTO.getEmail());
+        userRequest.setFirstName(etudiantDTO.getPrenom());
+        userRequest.setLastName(etudiantDTO.getNom());
+        userRequest.setPassword(etudiantDTO.getPassword());
+        userRequest.setRole("ETUDIANT");
+
+        authServiceClient.createUser(userRequest);
+
+        // 2. Sauvegarder l'étudiant localement
+        Etudiant etudiant = etudiantDTO.toEntity();
         return repository.save(etudiant);
     }
 
-    //Afficher tous les étudiants
+    // Afficher tous les étudiants
     public List<Etudiant> getAllEtudiants() {
         return repository.findAll();
     }
 
     // Modifier
-    public Etudiant modifierEtudiant(Long id,@Valid Etudiant etudiant) {
+    public Etudiant modifierEtudiant(Long id, Etudiant etudiant) {
         Etudiant e = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Etudiant introuvable"));
         e.setNom(etudiant.getNom());
@@ -47,6 +65,9 @@ public class EtudiantService {
 
     // Supprimer
     public void supprimerEtudiant(Long id) {
+        // Optionnel : supprimer aussi le compte Keycloak ici si besoin
+        Etudiant e = getById(id);
+        authServiceClient.deleteUser(e.getEmail());
         repository.deleteById(id);
     }
 
@@ -55,15 +76,14 @@ public class EtudiantService {
         return repository.findById(id)
                 .orElseThrow(() -> new EtudiantNotFoundException(id));
     }
-    //Rechercher par matricule
+
+    // Rechercher par matricule
     public Etudiant getByMatricule(String matricule) {
         return repository.findByMatricule(matricule)
                 .orElseThrow(() -> new EtudiantNotFoundException(matricule));
     }
-    
-    public List<Etudiant> getEtudiantsByIds(List<Long> ids) {
-    return repository.findAllById(ids);
-}
 
-    
+    public List<Etudiant> getEtudiantsByIds(List<Long> ids) {
+        return repository.findAllById(ids);
+    }
 }

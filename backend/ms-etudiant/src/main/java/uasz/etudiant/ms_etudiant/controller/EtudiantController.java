@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import uasz.etudiant.ms_etudiant.dtos.EtudiantDTO;
 import uasz.etudiant.ms_etudiant.model.Etudiant;
 import uasz.etudiant.ms_etudiant.service.EtudiantService;
 
@@ -26,8 +27,8 @@ public class EtudiantController {
 
     // POST api/etudiants
     @PostMapping
-    public Etudiant creer(@RequestBody Etudiant etudiant) {
-        return service.creerEtudiant(etudiant);
+    public Etudiant creer(@RequestBody EtudiantDTO etudiantDTO) {
+        return service.creerEtudiant(etudiantDTO);
     }
 
     // GET api/etudiants/{id}
@@ -36,7 +37,7 @@ public class EtudiantController {
         return service.getById(id);
     }
 
-    //GET /etudiants
+    // GET /etudiants
     @GetMapping("/all")
     public List<Etudiant> getAllEtudiants() {
         return service.getAllEtudiants();
@@ -47,8 +48,6 @@ public class EtudiantController {
     public Etudiant getByMatricule(@PathVariable String matricule) {
         return service.getByMatricule(matricule);
     }
-
-    
 
     // PUT api/etudiants/{id}
     @PutMapping("/{id}")
@@ -61,6 +60,5 @@ public class EtudiantController {
     public void supprimer(@PathVariable Long id) {
         service.supprimerEtudiant(id);
     }
-
 
 }

@@ -1,4 +1,4 @@
-package uasz.etudiant.ms_enseignant.security;
+package uasz.etudiant.ms_note.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -24,7 +24,10 @@ public class SecurityConfig {
                                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeExchange(exchanges -> exchanges
-                                                .anyExchange().permitAll())
+                                                .pathMatchers("/swagger-ui/**", "/v3/api-docs/**", "/*/swagger-ui/**",
+                                                                "/*/v3/api-docs/**", "/api/auth/login", "/api/auth/logout", "/actuator/**")
+                                                .permitAll()
+                                                .anyExchange().authenticated())
                                 .oauth2ResourceServer(oauth2 -> oauth2
                                                 .jwt(jwt -> jwt
                                                                 .jwtAuthenticationConverter(new JwtAuthConverter())))

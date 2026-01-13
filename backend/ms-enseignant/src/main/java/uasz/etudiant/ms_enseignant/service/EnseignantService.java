@@ -26,8 +26,22 @@ public class EnseignantService {
 
     // Client vers ms-classe
     private final MatiereClient matiereClient;
+    // Client vers service-user (Keycloak)
+    private final uasz.etudiant.ms_enseignant.client.AuthServiceClient authServiceClient;
 
     public Enseignant create(CreateEnseignantDto dto) {
+        // 1. Créer l'utilisateur dans Keycloak via service-user
+        uasz.etudiant.ms_enseignant.dto.CreateUserRequest userRequest = new uasz.etudiant.ms_enseignant.dto.CreateUserRequest();
+        userRequest.setUsername(dto.getEmail()); // Username = Email
+        userRequest.setEmail(dto.getEmail());
+        userRequest.setFirstName(dto.getPrenom());
+        userRequest.setLastName(dto.getNom());
+        userRequest.setPassword(dto.getPassword());
+        userRequest.setRole("ENSEIGNANT");
+
+        authServiceClient.createUser(userRequest);
+
+        // 2. Sauvegarder l'enseignant localement
         Enseignant enseignant = Enseignant.builder()
                 .matriculeEns(dto.getMatriculeEns())
                 .nom(dto.getNom())
@@ -106,45 +120,43 @@ public class EnseignantService {
 
     public uasz.etudiant.ms_enseignant.dto.EnseignantDetailsDto getDetails(Long id) {
 
-    Enseignant e = getById(id);
+        Enseignant e = getById(id);
 
-    List<Long> ids = e.getMatieres().stream()
-            .map(link -> link.getMatiereId())
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
+        List<Long> ids = e.getMatieres().stream()
+                .map(link -> link.getMatiereId())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
 
-    // Mode dégradé : si ms-classe down -> on renvoie ids seulement
-    try {
-        List<MatiereDto> matieres = ids.isEmpty() ? List.of() : matiereClient.getMatieresByIds(ids);
+        // Mode dégradé : si ms-classe down -> on renvoie ids seulement
+        try {
+            List<MatiereDto> matieres = ids.isEmpty() ? List.of() : matiereClient.getMatieresByIds(ids);
 
-        return new uasz.etudiant.ms_enseignant.dto.EnseignantDetailsDto(
-                e.getIdEnseignant(),
-                e.getMatriculeEns(),
-                e.getNom(),
-                e.getPrenom(),
-                e.getEmail(),
-                e.getTelephone(),
-                e.getSpecialite(),
-                matieres,
-                ids,
-                true
-        );
+            return new uasz.etudiant.ms_enseignant.dto.EnseignantDetailsDto(
+                    e.getIdEnseignant(),
+                    e.getMatriculeEns(),
+                    e.getNom(),
+                    e.getPrenom(),
+                    e.getEmail(),
+                    e.getTelephone(),
+                    e.getSpecialite(),
+                    matieres,
+                    ids,
+                    true);
 
-    } catch (Exception ex) {
-        return new uasz.etudiant.ms_enseignant.dto.EnseignantDetailsDto(
-                e.getIdEnseignant(),
-                e.getMatriculeEns(),
-                e.getNom(),
-                e.getPrenom(),
-                e.getEmail(),
-                e.getTelephone(),
-                e.getSpecialite(),
-                List.of(),
-                ids,
-                false
-        );
+        } catch (Exception ex) {
+            return new uasz.etudiant.ms_enseignant.dto.EnseignantDetailsDto(
+                    e.getIdEnseignant(),
+                    e.getMatriculeEns(),
+                    e.getNom(),
+                    e.getPrenom(),
+                    e.getEmail(),
+                    e.getTelephone(),
+                    e.getSpecialite(),
+                    List.of(),
+                    ids,
+                    false);
+        }
     }
-}
 
 }

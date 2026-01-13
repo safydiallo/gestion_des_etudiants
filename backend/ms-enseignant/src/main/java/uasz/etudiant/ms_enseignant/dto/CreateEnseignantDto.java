@@ -31,4 +31,8 @@ public class CreateEnseignantDto {
 
     // Spécialité de l’enseignant
     private String specialite;
+
+    // Mot de passe pour Keycloak
+    @NotBlank
+    private String password;
 }
