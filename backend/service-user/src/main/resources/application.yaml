@@ -6,10 +6,65 @@ spring:
     name: service-user
   config:
     import: "configserver:http://ms-config:8888"
-    
+  cloud:
+    config:
+      uri: http://ms-config:8888
+
+  # DB Config (Restored)
+  datasource:
+    url: jdbc:mariadb://service-user-db:3306/db_user
+    username: user
+    password: passer123
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+  # AJOUT OBLIGATOIRE : Resource Server JWT (Keycloak)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/gestion-etudiants
+
+# Keycloak and Eureka (Restored from user request)
+keycloak:
+  server-url: ${KEYCLOAK_SERVER_URL:http://localhost:9090}
+  realm: ${KEYCLOAK_REALM:gestion-etudiants}
+  admin:
+    username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+
 eureka:
+  instance:
+    hostname: service-user 
+    prefer-ip-address: false  
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
   client:
     service-url:
-      defaultZone: http://ms-discover:8761/eureka/
-    register-with-eureka: true
+      defaultZone: http://ms-discover:8761/eureka  
     fetch-registry: true
+    register-with-eureka: true
+    initial-instance-info-replication-interval-seconds: 5
+    registry-fetch-interval-seconds: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud: DEBUG
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG

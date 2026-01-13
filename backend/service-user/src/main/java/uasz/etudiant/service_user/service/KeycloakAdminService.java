@@ -1,54 +1,75 @@
 package uasz.etudiant.service_user.service;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import uasz.etudiant.service_user.DTO.CreateUserRequest;
 
-import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import jakarta.ws.rs.core.Response;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class KeycloakAdminService {
 
     private final Keycloak keycloak;
-    private final String realm = "gestion-etudiants";
 
-    public String createUser(String email, String password, String role) {
+    @Value("${keycloak.realm}")
+    private String realm;
+
+    public void createUser(CreateUserRequest dto) {
+
+        UsersResource users = keycloak.realm(realm).users();
 
         UserRepresentation user = new UserRepresentation();
-        user.setUsername(email);
-        user.setEmail(email);
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
         user.setEnabled(true);
 
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(password);
-        credential.setTemporary(false);
+        users.create(user);
 
-        user.setCredentials(List.of(credential));
+        // récupérer l'utilisateur créé
+        UserRepresentation createdUser = users.search(dto.getUsername()).get(0);
 
-        Response response = keycloak.realm(realm).users().create(user);
+        // mot de passe
+        CredentialRepresentation pwd = new CredentialRepresentation();
+        pwd.setType(CredentialRepresentation.PASSWORD);
+        pwd.setValue(dto.getPassword());
+        pwd.setTemporary(false);
 
-        String userId = CreatedResponseUtil.getCreatedId(response);
+        users.get(createdUser.getId()).resetPassword(pwd);
 
-        RoleRepresentation roleRep = keycloak.realm(realm)
+        // rôle
+        RoleRepresentation role = keycloak
+                .realm(realm)
                 .roles()
-                .get(role)
+                .get(dto.getRole())
                 .toRepresentation();
 
-        keycloak.realm(realm)
-                .users()
-                .get(userId)
+        users.get(createdUser.getId())
                 .roles()
                 .realmLevel()
-                .add(List.of(roleRep));
+                .add(List.of(role));
+    }
 
-        return userId;
+    public void deleteUser(String username) {
+
+        UsersResource users = keycloak.realm(realm).users();
+
+        List<UserRepresentation> result = users.search(username);
+
+        if (result.isEmpty()) {
+            return; // idempotent (important pour tolérance aux pannes)
+        }
+
+        String userId = result.get(0).getId();
+        users.get(userId).remove();
     }
 }

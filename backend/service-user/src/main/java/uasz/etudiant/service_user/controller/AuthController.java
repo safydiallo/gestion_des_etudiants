@@ -1,0 +1,35 @@
+package uasz.etudiant.service_user.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import uasz.etudiant.service_user.DTO.LoginRequest;
+import uasz.etudiant.service_user.DTO.LogoutRequest;
+import uasz.etudiant.service_user.service.KeycloakAuthService;
+
+
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final KeycloakAuthService authService;
+
+    public AuthController(KeycloakAuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+        return authService.login(request.username(), request.password());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestBody LogoutRequest request) {
+        return authService.logout(request.refreshToken());
+    }
+}
+

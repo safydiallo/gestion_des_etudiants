@@ -1,34 +1,32 @@
-x-service-defaults: &service-defaults
-  networks:
-    - microservices-net
-  restart: unless-stopped
-
 services:
 
+  # -----------------------------------------------------------------------
+  # CONFIGURATION & DISCOVERY
+  # -----------------------------------------------------------------------
 
-#Les services de l’architecture microservices
-
-  # CONFIG SERVER
   ms-config:
-    <<: *service-defaults
     build: ./backend/ms-config
     container_name: ms-config-server
     ports:
       - "8888:8888"
+    networks:
+      - microservices-net
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8888/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-  
-  # DISCOVERY SERVER (Eureka)
+
   ms-discover:
-    <<: *service-defaults
     build: ./backend/ms-discover
     container_name: ms-discover-server
     ports:
       - "8761:8761"
+    networks:
+      - microservices-net
+    restart: unless-stopped
     depends_on:
       ms-config:
         condition: service_healthy
@@ -38,14 +36,17 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-  
-  # GATEWAY SERVER
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://ms-config:8888
+
   ms-gateway:
-    <<: *service-defaults
     build: ./backend/ms-gateway
     container_name: ms-gateway-server
     ports:
       - "8088:8088"
+    networks:
+      - microservices-net
+    restart: unless-stopped
     depends_on:
       ms-config:
         condition: service_healthy
@@ -58,8 +59,11 @@ services:
       retries: 3
       start_period: 30s
 
+  # -----------------------------------------------------------------------
+  # IDENTITY PROVIDER
+  # -----------------------------------------------------------------------
+
   keycloak:
-    <<: *service-defaults
     image: quay.io/keycloak/keycloak:25.0
     container_name: keycloak
     command: start-dev
@@ -67,33 +71,42 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
-      - "8080:8080"   # 🚀 Aucun conflit, Keycloak exposé sur 8080
-    depends_on:
-      ms-discover:
-        condition: service_healthy
+      - "9090:8080" 
     volumes:
       - keycloak-data:/opt/keycloak/data
     networks:
       - microservices-net
+    restart: unless-stopped
 
+  # -----------------------------------------------------------------------
+  # MICROSERVICES
+  # -----------------------------------------------------------------------
 
-  #Les microservices des APIs métiers
-
-
-  # MS-USER API
   service-user:
-    <<: *service-defaults
     build:
       context: .
       dockerfile: backend/service-user/Dockerfile
     container_name: service-user
     ports:
       - "8081:8081"
+    environment:
+      - SPRING_APPLICATION_NAME=service-user 
+      - CONFIG_SERVER_URL=http://ms-config:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://ms-discover:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://ms-config:8888
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/gestion-etudiants
+      - KEYCLOAK_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=gestion-etudiants
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
     depends_on:
       ms-config:
         condition: service_healthy
       ms-discover:
         condition: service_healthy
+      keycloak:
+        condition: service_started
       service-user-db:
         condition: service_healthy
     healthcheck:
@@ -102,10 +115,11 @@ services:
       timeout: 5s
       retries: 10
       start_period: 40s
+    networks:
+      - microservices-net
+    restart: always
 
-  # MS-ETUDIANT API
   ms-etudiant:
-    <<: *service-defaults
     build:
       context: .
       dockerfile: backend/ms-etudiant/Dockerfile
@@ -120,15 +134,16 @@ services:
       ms-etudiant-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8082/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 40s
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
- # MS-CLASSE API
   ms-classe:
-    <<: *service-defaults
     build:
       context: .
       dockerfile: backend/ms-classe/Dockerfile
@@ -143,15 +158,16 @@ services:
       ms-classe-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8083/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 40s
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
-  # MS-ENSEIGNANT API
   ms-enseignant:
-    <<: *service-defaults
     build:
       context: .
       dockerfile: backend/ms-enseignant/Dockerfile
@@ -166,15 +182,16 @@ services:
       ms-enseignant-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8084/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 40s
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
-  # MS-NOTE API
   ms-note:
-    <<: *service-defaults
     build:
       context: .
       dockerfile: backend/ms-note/Dockerfile
@@ -189,19 +206,20 @@ services:
       ms-note-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8085/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 40s
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
-  
+  # -----------------------------------------------------------------------
+  # DATABASES
+  # -----------------------------------------------------------------------
 
-  #Les bases de données des microservices
-
-  # MS-USER Database
   service-user-db:
-    <<: *service-defaults
     image: mariadb:11
     container_name: service-user-db
     environment:
@@ -222,10 +240,11 @@ services:
     command: 
       - --wait-timeout=28800
       - --interactive-timeout=28800
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
-  # MS-ETUDIANT Database
   ms-etudiant-db:
-    <<: *service-defaults
     image: mariadb:11
     container_name: ms-etudiant-db
     environment:
@@ -246,10 +265,11 @@ services:
     command: 
       - --wait-timeout=28800
       - --interactive-timeout=28800
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
-  # MS-CLASSE Database
   ms-classe-db:
-    <<: *service-defaults
     image: mariadb:11
     container_name: ms-classe-db
     environment:
@@ -270,10 +290,11 @@ services:
     command: 
       - --wait-timeout=28800
       - --interactive-timeout=28800
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
-  # MS-ENSEIGNANT Database
   ms-enseignant-db:
-    <<: *service-defaults
     image: mariadb:11
     container_name: ms-enseignant-db
     environment:
@@ -294,10 +315,11 @@ services:
     command: 
       - --wait-timeout=28800
       - --interactive-timeout=28800
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
-  # MS-NOTE Database
   ms-note-db:
-    <<: *service-defaults
     image: mariadb:11
     container_name: ms-note-db
     environment:
@@ -318,11 +340,14 @@ services:
     command: 
       - --wait-timeout=28800
       - --interactive-timeout=28800
+    networks:
+      - microservices-net
+    restart: unless-stopped
 
- 
-  # phpMyAdmin for microservices databases
+  # -----------------------------------------------------------------------
+  # TOOLS (PhpMyAdmin)
+  # -----------------------------------------------------------------------
 
-   # phpMyAdmin for service-USER
   phpmyadmin-user:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin-user
@@ -330,14 +355,13 @@ services:
       PMA_HOST: service-user-db
       PMA_PORT: 3306
     ports:
-      - "9091:80"
-    networks:
-      - microservices-net
+      - "9099:80"
     depends_on:
       - service-user-db
+    networks:
+      - microservices-net
     restart: unless-stopped
 
-   # phpMyAdmin for MS-ETUDIANT
   phpmyadmin-etudiant:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin-etudiant
@@ -346,13 +370,12 @@ services:
       PMA_PORT: 3306
     ports:
       - "9092:80"
-    networks:
-      - microservices-net
     depends_on:
       - ms-etudiant-db
+    networks:
+      - microservices-net
     restart: unless-stopped
 
-# phpMyAdmin for MS-CLASSE
   phpmyadmin-classe:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin-classe
@@ -361,13 +384,12 @@ services:
       PMA_PORT: 3306
     ports:
       - "9093:80"
-    networks:
-      - microservices-net
     depends_on:
       - ms-classe-db
+    networks:
+      - microservices-net
     restart: unless-stopped
 
-# phpMyAdmin for MS-ENSEIGNANT
   phpmyadmin-enseignant:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin-enseignant
@@ -376,13 +398,12 @@ services:
       PMA_PORT: 3306
     ports:
       - "9094:80"
-    networks:
-      - microservices-net
     depends_on:
       - ms-enseignant-db
+    networks:
+      - microservices-net
     restart: unless-stopped
 
-# phpMyAdmin for MS-NOTE
   phpmyadmin-note:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin-note
@@ -391,21 +412,16 @@ services:
       PMA_PORT: 3306
     ports:
       - "9095:80"
-    networks:
-      - microservices-net
     depends_on:
       - ms-note-db
+    networks:
+      - microservices-net
     restart: unless-stopped
 
- 
-
-#Définition des réseaux
 networks:
   microservices-net:
     driver: bridge
 
-
-#Les volumes pour les bases de données
 volumes:
   service-user-db-data:
   ms-etudiant-db-data:

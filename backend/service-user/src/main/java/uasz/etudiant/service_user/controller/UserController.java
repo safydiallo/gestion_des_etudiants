@@ -1,38 +1,36 @@
 package uasz.etudiant.service_user.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import lombok.RequiredArgsConstructor;
+import uasz.etudiant.service_user.DTO.CreateUserRequest;
+import uasz.etudiant.service_user.service.KeycloakAdminService;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
-import uasz.etudiant.service_user.DTO.CreateEnseignantRequest;
-import uasz.etudiant.service_user.DTO.CreateEtudiantRequest;
-import uasz.etudiant.service_user.service.UserService;
+
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth/users")
 @RequiredArgsConstructor
-@EnableMethodSecurity
 public class UserController {
 
-    private final UserService userService;
+    private final KeycloakAdminService service;
 
-    @PostMapping("/etudiants")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createEtudiant(@RequestBody CreateEtudiantRequest request) {
-        userService.createEtudiant(request);
-        return ResponseEntity.ok().build();
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createUser(@RequestBody CreateUserRequest dto) {
+        service.createUser(dto);
     }
 
-    @PostMapping("/enseignants")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createEnseignant(@RequestBody CreateEnseignantRequest request) {
-        userService.createEnseignant(request);
-        return ResponseEntity.ok().build();
+    @DeleteMapping("/{username}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable String username) {
+        service.deleteUser(username);
     }
 }
-

@@ -9,30 +9,26 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KeycloakConfig {
 
-    // ✅ CORRIGÉ: utilisez "app.keycloak" au lieu de "keycloak"
-    @Value("${app.keycloak.server-url}")
+    @Value("${keycloak.server-url}")
     private String serverUrl;
 
-    @Value("${app.keycloak.realm}")
+    @Value("${keycloak.realm}")
     private String realm;
 
-    @Value("${app.keycloak.admin-username}")
+    @Value("${keycloak.admin.username}")
     private String adminUsername;
 
-    @Value("${app.keycloak.admin-password}")
+    @Value("${keycloak.admin.password}")
     private String adminPassword;
 
-    // ✅ CORRIGÉ: utilisez une valeur par défaut
-    @Value("${app.keycloak.admin-client-id:admin-cli}")
+    @Value("${keycloak.admin.client-id}")
     private String clientId;
 
-
-
     @Bean
-    public Keycloak keycloakAdmin() {
+    public Keycloak keycloak() {
         return KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
-                .realm("master")  // Realm admin = master
+                .realm("master") // Admin client uses master realm
                 .username(adminUsername)
                 .password(adminPassword)
                 .clientId(clientId)
