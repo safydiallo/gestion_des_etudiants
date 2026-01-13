@@ -214,6 +214,8 @@ services:
     networks:
       - microservices-net
     restart: unless-stopped
+  
+
 
   # -----------------------------------------------------------------------
   # DATABASES
@@ -369,7 +371,7 @@ services:
       PMA_HOST: ms-etudiant-db
       PMA_PORT: 3306
     ports:
-      - "9092:80"
+      - "9096:80"
     depends_on:
       - ms-etudiant-db
     networks:
@@ -414,6 +416,20 @@ services:
       - "9095:80"
     depends_on:
       - ms-note-db
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - microservices-net
     restart: unless-stopped
