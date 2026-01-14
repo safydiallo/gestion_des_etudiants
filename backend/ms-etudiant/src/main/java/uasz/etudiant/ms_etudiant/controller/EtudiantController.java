@@ -51,8 +51,8 @@ public class EtudiantController {
 
     // PUT api/etudiants/{id}
     @PutMapping("/{id}")
-    public Etudiant modifierEtudiant(@PathVariable Long id, @RequestBody Etudiant etudiant) {
-        return service.modifierEtudiant(id, etudiant);
+    public Etudiant modifierEtudiant(@PathVariable Long id, @RequestBody EtudiantDTO etudiantDTO) {
+        return service.modifierEtudiant(id, etudiantDTO);
     }
 
     // DELETE api/etudiants/{id}

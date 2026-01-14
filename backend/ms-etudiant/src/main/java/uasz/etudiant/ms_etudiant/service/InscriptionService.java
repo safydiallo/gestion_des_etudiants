@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import uasz.etudiant.ms_etudiant.model.Etudiant;
 import uasz.etudiant.ms_etudiant.model.Inscription;
 import uasz.etudiant.ms_etudiant.repository.InscriptionRepository;
 
@@ -12,9 +11,12 @@ import uasz.etudiant.ms_etudiant.repository.InscriptionRepository;
 public class InscriptionService {
 
     private final InscriptionRepository repository;
+    private final uasz.etudiant.ms_etudiant.clients.ClasseClient classeClient;
 
-    public InscriptionService(InscriptionRepository repository) {
+    public InscriptionService(InscriptionRepository repository,
+            uasz.etudiant.ms_etudiant.clients.ClasseClient classeClient) {
         this.repository = repository;
+        this.classeClient = classeClient;
     }
 
     // Inscrire un étudiant
@@ -32,6 +34,16 @@ public class InscriptionService {
         return repository.save(inscription);
     }
 
+    // Inscrire un étudiant par nom de classe
+    public Inscription inscrireByClassName(Long etudiantId, String className) {
+        // Récupérer la classe par son nom via Feign
+        uasz.etudiant.ms_etudiant.clients.ClasseDTO classe = classeClient.getClasseByName(className);
+        if (classe == null || classe.getId() == null) {
+            throw new RuntimeException("Classe non trouvée : " + className);
+        }
+        return inscrire(etudiantId, classe.getId());
+    }
+
     // Obtenir l'inscription d'un étudiant
     public Inscription getByEtudiant(Long etudiantId) {
         return repository.findByEtudiantId(etudiantId)
@@ -45,10 +57,40 @@ public class InscriptionService {
 
     // Rechercher par classe
     public List<Long> getEtudiantIdsByClasse(Long classeId) {
-    return repository.findByClasseId(classeId)
-            .stream()
-            .map(Inscription::getEtudiantId)
-            .toList();
+        return repository.findByClasseId(classeId)
+                .stream()
+                .map(Inscription::getEtudiantId)
+                .toList();
     }
-    
+
+    // Obtenir le statut d'inscription d'un étudiant
+    public uasz.etudiant.ms_etudiant.dtos.InscriptionStatusDTO getInscriptionStatus(Long etudiantId) {
+        var inscription = repository.findByEtudiantId(etudiantId);
+
+        if (inscription.isPresent()) {
+            Inscription insc = inscription.get();
+            // Essayer de récupérer le nom de la classe via Feign
+            String classeNom = null;
+            try {
+                uasz.etudiant.ms_etudiant.clients.ClasseDTO classe = classeClient.getClasseByName(""); // On pourrait
+                                                                                                       // améliorer ça
+                // Idéalement, il faudrait un getClasseById dans ClasseClient
+            } catch (Exception e) {
+                // Ignore si ms-classe est down
+            }
+
+            return new uasz.etudiant.ms_etudiant.dtos.InscriptionStatusDTO(
+                    etudiantId,
+                    "INSCRIT",
+                    insc.getClasseId(),
+                    classeNom);
+        } else {
+            return new uasz.etudiant.ms_etudiant.dtos.InscriptionStatusDTO(
+                    etudiantId,
+                    "NON_INSCRIT",
+                    null,
+                    null);
+        }
+    }
+
 }

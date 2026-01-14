@@ -15,9 +15,8 @@ public class ClasseService {
 
     private final ClasseRepository repository;
     private final EtudiantClient etudiantClient;
-    
 
-    public ClasseService(ClasseRepository repository , EtudiantClient etudiantClient) {
+    public ClasseService(ClasseRepository repository, EtudiantClient etudiantClient) {
         this.repository = repository;
         this.etudiantClient = etudiantClient;
     }
@@ -27,12 +26,12 @@ public class ClasseService {
         return repository.save(classe);
     }
 
-    //Afficher toutes les classes
+    // Afficher toutes les classes
     public List<Classe> getAllClasses() {
         return repository.findAll();
     }
 
-    //Rechercher une classe par nom
+    // Rechercher une classe par nom
     public Classe getClassesByName(String name) {
         return repository.findByNom(name);
     }
@@ -43,7 +42,7 @@ public class ClasseService {
                 .orElseThrow(() -> new ClasseNotFoundException(id));
     }
 
-    //Modifier une classe
+    // Modifier une classe
     public Classe updateClasse(Long id, Classe updatedClasse) {
         Classe existingClasse = getClasseById(id);
         existingClasse.setNom(updatedClasse.getNom());
@@ -56,6 +55,19 @@ public class ClasseService {
         // appel vers etudiant-service (Feign ou RestTemplate)
         return etudiantClient.getEtudiantsParClasse(classeId);
     }
-    
+
+    public List<EtudiantDTO> getEtudiantsByClassName(String className) {
+        Classe classe = getClassesByName(className);
+        if (classe == null) {
+            throw new ClasseNotFoundException("Classe non trouvée : " + className);
+        }
+        return etudiantClient.getEtudiantsParClasse(classe.getId());
+    }
+
+    // Supprimer une classe
+    public void deleteClasse(Long id) {
+        Classe classe = getClasseById(id);
+        repository.deleteById(classe.getId());
+    }
 
 }

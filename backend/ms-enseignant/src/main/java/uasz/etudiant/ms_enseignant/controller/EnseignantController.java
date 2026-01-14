@@ -48,10 +48,22 @@ public class EnseignantController {
         return enseignantService.getById(id);
     }
 
-    
     @GetMapping("/{id}/details")
     public EnseignantDetailsDto getDetails(@PathVariable Long id) {
         return enseignantService.getDetails(id);
+    }
+
+    // PUT /teachers/{id}
+    @PutMapping("/{id}")
+    public Enseignant update(@PathVariable Long id, @Valid @RequestBody CreateEnseignantDto dto) {
+        return enseignantService.update(id, dto);
+    }
+
+    // DELETE /teachers/{id}
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        enseignantService.delete(id);
     }
 
 }

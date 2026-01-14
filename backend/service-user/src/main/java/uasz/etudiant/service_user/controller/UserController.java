@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-
-
 @RestController
 @RequestMapping("/api/auth/users")
 @RequiredArgsConstructor
@@ -32,5 +30,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable String username) {
         service.deleteUser(username);
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/{username}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUser(@PathVariable String username, @RequestBody CreateUserRequest dto) {
+        service.updateUser(username, dto);
     }
 }

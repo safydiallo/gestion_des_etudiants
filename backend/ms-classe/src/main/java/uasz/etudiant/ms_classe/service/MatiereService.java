@@ -27,7 +27,20 @@ public class MatiereService {
     }
 
     public List<Matiere> getByIds(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) return List.of();
+        if (ids == null || ids.isEmpty())
+            return List.of();
         return matiereRepository.findByIdIn(ids);
+    }
+
+    public Matiere update(Long id, Matiere matiere) {
+        Matiere existing = getById(id);
+        existing.setNom(matiere.getNom());
+        existing.setCoefficient(matiere.getCoefficient());
+        return matiereRepository.save(existing);
+    }
+
+    public void delete(Long id) {
+        Matiere matiere = getById(id);
+        matiereRepository.deleteById(matiere.getId());
     }
 }

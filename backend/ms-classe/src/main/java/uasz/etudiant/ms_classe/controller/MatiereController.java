@@ -2,6 +2,7 @@ package uasz.etudiant.ms_classe.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import uasz.etudiant.ms_classe.model.Matiere;
 import uasz.etudiant.ms_classe.service.MatiereService;
@@ -36,5 +37,18 @@ public class MatiereController {
     @GetMapping("/by-ids")
     public List<Matiere> getByIds(@RequestParam("ids") List<Long> ids) {
         return service.getByIds(ids);
+    }
+
+    // PUT /api/matieres/{id}
+    @PutMapping("/{id}")
+    public Matiere update(@PathVariable Long id, @Valid @RequestBody Matiere matiere) {
+        return service.update(id, matiere);
+    }
+
+    // DELETE /api/matieres/{id}
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 }

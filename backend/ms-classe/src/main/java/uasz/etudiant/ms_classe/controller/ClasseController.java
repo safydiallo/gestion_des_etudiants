@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
 
 import jakarta.validation.Valid;
 import uasz.etudiant.ms_classe.DTO.EtudiantDTO;
@@ -36,13 +38,13 @@ public class ClasseController {
         return service.getClasseById(id);
     }
 
-    //GET /api/classes/{name}
+    // GET /api/classes/{name}
     @GetMapping("/name/{name}")
     public Classe getByName(@PathVariable String name) {
         return service.getClassesByName(name);
     }
 
-    //GET /api/classes
+    // GET /api/classes
     @GetMapping
     public List<Classe> getAllClasses() {
         return service.getAllClasses();
@@ -54,5 +56,22 @@ public class ClasseController {
         return service.getEtudiants(classeId);
     }
 
-}
+    @GetMapping("/name/{name}/etudiants")
+    public List<EtudiantDTO> getEtudiantsByClassName(@PathVariable("name") String className) {
+        return service.getEtudiantsByClassName(className);
+    }
 
+    // PUT /api/classes/{id}
+    @org.springframework.web.bind.annotation.PutMapping("/{id}")
+    public Classe modifier(@PathVariable Long id, @Valid @RequestBody Classe classe) {
+        return service.updateClasse(id, classe);
+    }
+
+    // DELETE /api/classes/{id}
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void supprimer(@PathVariable Long id) {
+        service.deleteClasse(id);
+    }
+
+}

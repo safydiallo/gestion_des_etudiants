@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import uasz.etudiant.ms_enseignant.dto.CreateUserRequest;
 
-
-
 @FeignClient(name = "service-user", fallback = AuthServiceFallback.class)
 public interface AuthServiceClient {
 
@@ -18,4 +16,7 @@ public interface AuthServiceClient {
 
     @DeleteMapping("/api/auth/users/{username}")
     void deleteUser(@PathVariable String username);
+
+    @org.springframework.web.bind.annotation.PutMapping("/api/auth/users/{username}")
+    void updateUser(@PathVariable String username, @RequestBody CreateUserRequest request);
 }

@@ -159,4 +159,50 @@ public class EnseignantService {
         }
     }
 
+    // Modifier un enseignant (avec synchronisation Keycloak)
+    public Enseignant update(Long id, CreateEnseignantDto dto) {
+        Enseignant enseignant = getById(id);
+        String oldEmail = enseignant.getEmail();
+
+        // 1. Mise à jour dans Keycloak
+        uasz.etudiant.ms_enseignant.dto.CreateUserRequest userRequest = new uasz.etudiant.ms_enseignant.dto.CreateUserRequest();
+        userRequest.setUsername(dto.getEmail());
+        userRequest.setEmail(dto.getEmail());
+        userRequest.setFirstName(dto.getPrenom());
+        userRequest.setLastName(dto.getNom());
+        userRequest.setPassword(dto.getPassword());
+        userRequest.setRole("ENSEIGNANT");
+
+        try {
+            authServiceClient.updateUser(oldEmail, userRequest);
+        } catch (Exception ex) {
+            System.err.println("Erreur lors de la mise à jour Keycloak : " + ex.getMessage());
+        }
+
+        // 2. Mise à jour locale
+        enseignant.setMatriculeEns(dto.getMatriculeEns());
+        enseignant.setNom(dto.getNom());
+        enseignant.setPrenom(dto.getPrenom());
+        enseignant.setEmail(dto.getEmail());
+        enseignant.setTelephone(dto.getTelephone());
+        enseignant.setSpecialite(dto.getSpecialite());
+
+        return enseignantRepository.save(enseignant);
+    }
+
+    // Supprimer un enseignant (avec synchronisation Keycloak)
+    public void delete(Long id) {
+        Enseignant enseignant = getById(id);
+
+        // Supprimer le compte Keycloak
+        try {
+            authServiceClient.deleteUser(enseignant.getEmail());
+        } catch (Exception ex) {
+            System.err.println("Erreur lors de la suppression Keycloak : " + ex.getMessage());
+        }
+
+        // Supprimer localement
+        enseignantRepository.deleteById(id);
+    }
+
 }

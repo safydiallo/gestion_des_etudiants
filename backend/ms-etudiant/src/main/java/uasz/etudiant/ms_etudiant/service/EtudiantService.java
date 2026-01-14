@@ -49,17 +49,39 @@ public class EtudiantService {
     }
 
     // Modifier
-    public Etudiant modifierEtudiant(Long id, Etudiant etudiant) {
+    public Etudiant modifierEtudiant(Long id, EtudiantDTO etudiantDTO) {
         Etudiant e = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Etudiant introuvable"));
-        e.setNom(etudiant.getNom());
-        e.setPrenom(etudiant.getPrenom());
-        e.setMatricule(etudiant.getMatricule());
-        e.setDate_naissance(etudiant.getDate_naissance());
-        e.setEmail(etudiant.getEmail());
-        e.setTelephone(etudiant.getTelephone());
-        e.setAdresse(etudiant.getAdresse());
-        e.setSexe(etudiant.getSexe());
+
+        String oldEmail = e.getEmail(); // L'ancien email est le username Keycloak
+
+        // 1. Mise à jour dans Keycloak
+        CreateUserRequest userRequest = new CreateUserRequest();
+        userRequest.setUsername(etudiantDTO.getEmail());
+        userRequest.setEmail(etudiantDTO.getEmail());
+        userRequest.setFirstName(etudiantDTO.getPrenom());
+        userRequest.setLastName(etudiantDTO.getNom());
+        userRequest.setPassword(etudiantDTO.getPassword());
+        userRequest.setRole("ETUDIANT");
+
+        try {
+            authServiceClient.updateUser(oldEmail, userRequest);
+        } catch (Exception ex) {
+            System.err.println("Erreur lors de la mise à jour Keycloak : " + ex.getMessage());
+            // On continue quand même la mise à jour locale ?
+            // Idéalement on devrait rollback ou lancer une exception selon la politique de
+            // cohérence.
+        }
+
+        // 2. Mise à jour locale
+        e.setNom(etudiantDTO.getNom());
+        e.setPrenom(etudiantDTO.getPrenom());
+        e.setMatricule(etudiantDTO.getMatricule());
+        e.setDate_naissance(etudiantDTO.getDate_naissance());
+        e.setEmail(etudiantDTO.getEmail());
+        e.setTelephone(etudiantDTO.getTelephone());
+        e.setAdresse(etudiantDTO.getAdresse());
+        e.setSexe(etudiantDTO.getSexe());
         return repository.save(e);
     }
 

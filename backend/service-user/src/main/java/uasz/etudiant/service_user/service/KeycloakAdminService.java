@@ -72,4 +72,30 @@ public class KeycloakAdminService {
         String userId = result.get(0).getId();
         users.get(userId).remove();
     }
+
+    public void updateUser(String oldUsername, CreateUserRequest dto) {
+        UsersResource users = keycloak.realm(realm).users();
+        List<UserRepresentation> result = users.search(oldUsername);
+
+        if (result.isEmpty()) {
+            throw new RuntimeException("Utilisateur non trouvé dans Keycloak : " + oldUsername);
+        }
+
+        UserRepresentation user = result.get(0);
+        user.setUsername(dto.getEmail()); // Username = Email
+        user.setEmail(dto.getEmail());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+
+        users.get(user.getId()).update(user);
+
+        // Mise à jour du mot de passe si fourni
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            CredentialRepresentation pwd = new CredentialRepresentation();
+            pwd.setType(CredentialRepresentation.PASSWORD);
+            pwd.setValue(dto.getPassword());
+            pwd.setTemporary(false);
+            users.get(user.getId()).resetPassword(pwd);
+        }
+    }
 }

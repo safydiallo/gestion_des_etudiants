@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import uasz.etudiant.ms_classe.DTO.EtudiantDTO;
 
@@ -12,6 +11,6 @@ import uasz.etudiant.ms_classe.DTO.EtudiantDTO;
 public interface EtudiantClient {
 
     @GetMapping("/api/inscriptions/etudiants/classe/{classeId}")
-    List<EtudiantDTO> getEtudiantsParClasse(@RequestParam("classeId") Long classeId);
+    List<EtudiantDTO> getEtudiantsParClasse(
+            @org.springframework.web.bind.annotation.PathVariable("classeId") Long classeId);
 }
-
