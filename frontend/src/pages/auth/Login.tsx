@@ -17,12 +17,32 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    
+
     try {
+      console.log("📝 Formulaire soumis avec:", { username });
       await login(username, password);
+      console.log("✅ Navigation vers la page d'accueil");
       navigate("/");
-    } catch (err) {
-      setError("Identifiants incorrects. Veuillez réessayer.");
+    } catch (err: any) {
+      console.error("❌ Erreur de connexion:", err);
+      
+      // Gestion d'erreur améliorée
+      let errorMessage = "Identifiants incorrects. Veuillez réessayer.";
+      
+      if (err.response) {
+        // Erreur de réponse du serveur
+        errorMessage = err.response.data?.message || 
+                      err.response.data?.error || 
+                      `Erreur ${err.response.status}: ${err.response.statusText}`;
+      } else if (err.request) {
+        // Pas de réponse du serveur
+        errorMessage = "Impossible de contacter le serveur. Vérifiez votre connexion.";
+      } else {
+        // Autre erreur
+        errorMessage = err.message || errorMessage;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +107,7 @@ export default function Login() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -101,6 +122,7 @@ export default function Login() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-xs text-gray-400 hover:text-blue-400 transition-colors"
+                    disabled={isLoading}
                   >
                     {showPassword ? "Masquer" : "Afficher"}
                   </button>
@@ -116,11 +138,13 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    disabled={isLoading}
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5 text-gray-500 hover:text-gray-300 transition-colors" />
@@ -138,12 +162,14 @@ export default function Login() {
                 <input
                   type="checkbox"
                   className="w-4 h-4 bg-gray-900 border-gray-700 rounded text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+                  disabled={isLoading}
                 />
                 <span className="text-sm text-gray-400">Se souvenir de moi</span>
               </label>
               <button
                 type="button"
-                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                className="text-sm text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
+                disabled={isLoading}
               >
                 Mot de passe oublié ?
               </button>
@@ -153,7 +179,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full group relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               <div className="absolute inset-0 w-3 bg-white/20 -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               <div className="relative flex items-center justify-center space-x-2">
@@ -187,7 +213,8 @@ export default function Login() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                className="flex items-center justify-center space-x-2 bg-gray-900/50 hover:bg-gray-800/50 border border-gray-700 rounded-lg py-2.5 px-4 transition-colors duration-200 group"
+                className="flex items-center justify-center space-x-2 bg-gray-900/50 hover:bg-gray-800/50 border border-gray-700 rounded-lg py-2.5 px-4 transition-colors duration-200 group disabled:opacity-50"
+                disabled={isLoading}
               >
                 <div className="w-5 h-5 bg-gradient-to-r from-blue-400 to-blue-500 rounded" />
                 <span className="text-sm text-gray-300 group-hover:text-white">
@@ -196,7 +223,8 @@ export default function Login() {
               </button>
               <button
                 type="button"
-                className="flex items-center justify-center space-x-2 bg-gray-900/50 hover:bg-gray-800/50 border border-gray-700 rounded-lg py-2.5 px-4 transition-colors duration-200 group"
+                className="flex items-center justify-center space-x-2 bg-gray-900/50 hover:bg-gray-800/50 border border-gray-700 rounded-lg py-2.5 px-4 transition-colors duration-200 group disabled:opacity-50"
+                disabled={isLoading}
               >
                 <div className="w-5 h-5 bg-gradient-to-r from-red-400 to-yellow-500 rounded" />
                 <span className="text-sm text-gray-300 group-hover:text-white">
