@@ -51,4 +51,38 @@ public class MatiereController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
+    // ========== ENDPOINTS POUR LA LIAISON CLASSE-MATIERE ==========
+
+    // GET /api/matieres/classe/{classeId}
+    // Récupérer toutes les matières d'une classe spécifique
+    @GetMapping("/classe/{classeId}")
+    public List<Matiere> getMatieresByClasse(@PathVariable Long classeId) {
+        return service.getMatieresByClasseId(classeId);
+    }
+
+    // POST /api/matieres/{matiereId}/classe/{classeId}
+    // Associer une matière existante à une classe
+    @PostMapping("/{matiereId}/classe/{classeId}")
+    public Matiere assignToClasse(
+            @PathVariable Long matiereId,
+            @PathVariable Long classeId) {
+        return service.assignToClasse(matiereId, classeId);
+    }
+
+    // DELETE /api/matieres/{matiereId}/classe
+    // Dissocier une matière de sa classe
+    @DeleteMapping("/{matiereId}/classe")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFromClasse(@PathVariable Long matiereId) {
+        service.removeFromClasse(matiereId);
+    }
+
+    // GET /api/matieres/sans-classe
+    // Récupérer toutes les matières non affectées à une classe
+    @GetMapping("/sans-classe")
+    public List<Matiere> getMatieresWithoutClasse() {
+        return service.getMatieresWithoutClasse();
+    }
+
 }

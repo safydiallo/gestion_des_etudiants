@@ -11,4 +11,5 @@ public class MatiereDto {
     private Long id;
     private String nom;
     private Integer coefficient;
+    private ClasseDto classe;
 }

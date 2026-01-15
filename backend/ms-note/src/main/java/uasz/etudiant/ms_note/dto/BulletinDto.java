@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import uasz.etudiant.ms_note.entity.Note;
+
 import java.util.List;
 
 @Data
@@ -11,9 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class BulletinDto {
     private Long etudiantId;
-    private Double moyenne;
-    private List<NoteDto> notes;
-
-    private boolean moyennePonderee;
-    private boolean matieresDisponibles;
+    private Double moyenneGenerale;
+    private List<Note> notes;
 }

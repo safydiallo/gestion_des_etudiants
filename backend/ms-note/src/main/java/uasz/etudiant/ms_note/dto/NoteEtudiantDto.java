@@ -2,30 +2,16 @@ package uasz.etudiant.ms_note.dto;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-// DTO utilisé pour la saisie d’une note
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CreateNoteDto {
-
+public class NoteEtudiantDto {
     @NotNull(message = "L'ID de l'étudiant est obligatoire")
     private Long etudiantId;
-    
-    @NotNull(message = "L'ID de la matière est obligatoire")
-    private Long matiereId;
     
     @NotNull(message = "La note est obligatoire")
     @DecimalMin(value = "0.0", message = "La note doit être >= 0")
     @DecimalMax(value = "20.0", message = "La note doit être <= 20")
     private Double valeur;
-    
-    private String type; // ex: "CC", "Examen", "TP"
-    private String semestre;
 }

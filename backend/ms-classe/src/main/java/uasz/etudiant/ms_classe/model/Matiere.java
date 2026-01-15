@@ -24,4 +24,8 @@ public class Matiere {
     @NotNull(message = "Le coefficient est obligatoire")
     @Min(value = 1, message = "Le coefficient doit être >= 1")
     private Integer coefficient;
+
+    @ManyToOne
+    @JoinColumn(name = "classe_id")
+    private Classe classe;
 }

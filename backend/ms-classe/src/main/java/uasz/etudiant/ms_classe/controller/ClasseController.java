@@ -2,6 +2,7 @@ package uasz.etudiant.ms_classe.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import uasz.etudiant.ms_classe.DTO.EtudiantDTO;
 import uasz.etudiant.ms_classe.model.Classe;
+import uasz.etudiant.ms_classe.model.Matiere;
 import uasz.etudiant.ms_classe.service.ClasseService;
 
 @RestController
