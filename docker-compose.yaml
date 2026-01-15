@@ -426,10 +426,16 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-ui
     ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    - "3000:80"  # Changé de 3000:3000 à 3000:80
+  # Supprimez les volumes de développement (sauf si nécessaire pour le dev)
+  # volumes:
+  #   - ./frontend:/app
+  #   - /app/node_modules
+    depends_on:
+      ms-gateway:
+        condition: service_healthy
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8088  # URL du gateway
     networks:
       - microservices-net
     restart: unless-stopped
