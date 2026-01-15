@@ -9,10 +9,10 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/safydiallo/gestion-etudiant-config # URL du dépôt distant
-          default-label: main                                        # branche par défaut
-          clone-on-start: true                                       # clone au démarrage
-          force-pull: true                                           # récupère les dernières modifs
+          uri: https://github.com/djibyfall/repo-de-configuration- # URL du dépôt distant
+          default-label: main # branche par défaut
+          clone-on-start: true # clone au démarrage
+          force-pull: true # récupère les dernières modifs
           timeout: 10
 
 management:
